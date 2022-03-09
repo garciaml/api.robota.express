@@ -37,21 +37,23 @@ def create_refugee(refugee: schemas.Refugee, db: Session = Depends(get_db)):
 
 
 ### Find refugee
+path = "/"
 # By identifier
 @router.get(
-    "?id_refugee={id_refugee}",
-    response_model=List[schemas.Refugee],
+    path + "{id}",
+    response_model=schemas.Refugee,
     summary="get refugee by identifier",
 )
-def read_refugee_id(id_refugee: int, db: Session = Depends(get_db)):
-    db_refugee = crud.get_refugees_by_id(db, id=id_refugee)
+def read_refugee_id(id: int, db: Session = Depends(get_db)):
+    db_refugee = crud.get_refugees_by_id(db, id=id)
     if db_refugee is None:
         raise HTTPException(status_code=404, detail="Refugee not found")
     return db_refugee
+path += "id/"
 
 # By family name
 @router.get(
-    "?family_name={family_name}",
+    path + "{family_name}",
     response_model=List[schemas.Refugee],
     summary="get refugee by family name",
 )
@@ -60,10 +62,11 @@ def read_refugee_family_name(family_name: str, db: Session = Depends(get_db)):
     if db_refugee is None:
         raise HTTPException(status_code=404, detail="Refugee not found")
     return db_refugee
+path += "family_name/"
 
 # By first name
 @router.get(
-    "?first_name={first_name}",
+    path + "{first_name}",
     response_model=List[schemas.Refugee],
     summary="get refugee by first name",
 )
@@ -72,24 +75,26 @@ def read_refugee_first_name(first_name: str, db: Session = Depends(get_db)):
     if db_refugee is None:
         raise HTTPException(status_code=404, detail="Refugee not found")
     return db_refugee
+path += "first_name/"
 
 # Combining family and first name
 @router.get(
-    "?first_name={first_name}&family_name={family_name}",
+    path + "{family_name}/{first_name}",
     response_model=List[schemas.Refugee],
     summary="get refugee by first name and family name combination",
 )
 def read_refugee_first_and_family_names(first_name: str, family_name: str, db: Session = Depends(get_db)):
-    db_ts = crud.get_points_by_team_and_season(db, first_name=first_name, family_name=family_name)
+    db_ts = crud.get_refugees_by_first_and_family_name(db, first_name=first_name, family_name=family_name)
     if db_ts is None:
         raise HTTPException(
             status_code=404, detail="First name and Family name combination not found"
         )
     return db_ts
+path += "family_name/first_name/"
 
 # By birth date
 @router.get(
-    "?birth_date={birth_date}",
+    path + "{birth_date}",
     response_model=List[schemas.Refugee],
     summary="get refugee by birth date",
 )
@@ -98,10 +103,11 @@ def read_refugee_birth_date(birth_date: date, db: Session = Depends(get_db)):
     if db_refugee is None:
         raise HTTPException(status_code=404, detail="Refugee not found")
     return db_refugee
+path += "birth_date/"
 
 # By salary targeted
 @router.get(
-    "?salary={salary}",
+    path + "{salary}",
     response_model=List[schemas.Refugee],
     summary="get refugee by salary targeted",
 )
@@ -110,10 +116,11 @@ def read_refugee_salary(salary: int, db: Session = Depends(get_db)):
     if db_refugee is None:
         raise HTTPException(status_code=404, detail="Refugee not found")
     return db_refugee
+path += "salary/"
 
 # By Keyword
 @router.get(
-    "?keyword={keyword}",
+    path + "{keyword}",
     response_model=List[schemas.Refugee],
     summary="get refugee by keyword",
 )
@@ -122,5 +129,5 @@ def read_refugee_keyword(keyword: str, db: Session = Depends(get_db)):
     if db_refugee is None:
         raise HTTPException(status_code=404, detail="Refugee not found")
     return db_refugee
-
+path += "keyword/"
 

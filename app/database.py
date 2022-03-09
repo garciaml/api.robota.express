@@ -13,7 +13,9 @@ import os
 # SQLALCHEMY_DATABASE_URL = "mysql+mysqldb://dev:dev@127.0.0.1:3306/fitness"
 SQLALCHEMY_DATABASE_URL = "sqlite:///dev-sqlite-database.db"
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+# If SQLite database, put connect_args={"check_same_thread": False}
+# engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()

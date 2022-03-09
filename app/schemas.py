@@ -1,4 +1,5 @@
 from typing import List, Optional
+from unicodedata import category
 from pydantic import BaseModel
 from datetime import date
 
@@ -24,6 +25,7 @@ class EquivalentKeyword(BaseModel):
 
 class Keyword(BaseModel):
     label: str
+    # category: Optional[str]
 
     class Config:
         orm_mode = True

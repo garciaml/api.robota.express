@@ -1,7 +1,19 @@
+from unicodedata import category
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Date, Float, Text
 from sqlalchemy.orm import relationship
 
 from .database import Base
+
+# TODO:
+# - for Refugee, create keywords (that people can tick, sorted by category)
+# - for Refugee, create new_keywords (that people can write, to be analysed and placed in the table Keyword)
+# - create table Employer
+# - create table Organization
+# - create table JobOffer
+# - create table Trainer
+# - create table TrainingCategory (categories of training, linguage, etc.)
+# - create table TrainingOffer (an offer of training, learn French, etc.)
+# - create table Funder
 
 
 class Refugee(Base):
@@ -26,3 +38,4 @@ class Keyword(Base):
     __tablename__ = "keyword"
 
     label = Column(String(50), primary_key=True, index=True)
+    # category = Column(String(50))
