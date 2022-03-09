@@ -4,16 +4,6 @@ from sqlalchemy.orm import relationship
 from .database import Base
 
 
-class PointEvent(Base):
-    __tablename__ = "point_log"
-
-    id = Column(Integer, primary_key=True, index=True)
-    player = Column(String(50))
-    team = Column(String(50))
-    season = Column(String(50))
-    data_date = Column(Date)
-    points = Column(Float)
-
 class Refugee(Base):
     __tablename__ = "refugee"
 
