@@ -30,9 +30,9 @@ def get_db():
     response_model=schemas.Refugee,
 )
 def create_refugee(refugee: schemas.Refugee, db: Session = Depends(get_db)):
-    # db_user = crud.get_refugees_by_email(db, email=refugee.email)
-    # if db_user:
-    #     raise HTTPException(status_code=400, detail="Email already registered")
+    db_user = crud.get_refugees_by_email(db, email=refugee.email)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
     return crud.create_refugee(db=db, refugee=refugee)
 
 
