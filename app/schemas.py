@@ -22,7 +22,7 @@ class Refugee(BaseModel):
     birth_date: Optional[date] = None
     salary_targeted: Optional[int] = None
     email: str
-    keyword: Optional[str]
+    keywords: str
 
     class Config:
         orm_mode = True

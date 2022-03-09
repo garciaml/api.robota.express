@@ -33,8 +33,14 @@ def get_refugees_by_salary(db: Session, salary: int = 0):
 def get_refugees_by_email(db: Session, email: str):
     return db.query(models.Refugee).filter(models.Refugee.email == email).all()
 
-def get_refugees_by_keyword(db: Session, keyword: str):
-    return db.query(models.Refugee).filter(models.Refugee.keyword == keyword).all()
+# def get_refugees_by_keyword(db: Session, keyword: str):
+#     return (
+#         db.query(models.Refugee, models.Keyword, models.EquivalentKeyword)
+#         .filter(models.Refugee.keyword.contains(models.EquivalentKeyword.keyword))
+#         .filter(models.EquivalentKeyword.keyword == models.Keyword.label)
+#         .filter(models.Keyword.label == keyword)
+#         .all()
+#     )
 
 # Refugees: CREATE
 def create_refugee(db: Session, refugee: schemas.Refugee): # maybe put a keywords_id to link with equivalence table ? 
@@ -46,8 +52,8 @@ def create_refugee(db: Session, refugee: schemas.Refugee): # maybe put a keyword
 
 # Employers
 
-# Keywords
-
+# Keywords: CREATE
+# def get_equikeywords_by_keyword(db: Session, keyword: str):
 
 # OLD
 def get_point_logs(db: Session, skip: int = 0, limit: int = 100):

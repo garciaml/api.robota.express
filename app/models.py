@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Date, Float
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Date, Float, Text
 from sqlalchemy.orm import relationship
 
 from .database import Base
@@ -24,7 +24,7 @@ class Refugee(Base):
     salary_targeted = Column(Integer)
     email = Column(String(50))
     # keywords = relationship("Item", back_populates="owner")
-    keyword = Column(String(50), ForeignKey('equikeyword.label')) # pb, should be a list
+    keywords = Column(Text) # text of words separated by a comma (to be ordered and cleaned in the front-end part, before storing in json?)
 
 class EquivalentKeyword(Base):
     __tablename__ = "equikeyword"
