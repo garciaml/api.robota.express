@@ -22,6 +22,7 @@ class Refugee(Base):
     family_name = Column(String(50))
     birth_date = Column(Date)
     salary_targeted = Column(Integer)
+    email = Column(String(50))
     # keywords = relationship("Item", back_populates="owner")
     keyword = Column(String(50), ForeignKey('equikeyword.label')) # pb, should be a list
 

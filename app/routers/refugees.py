@@ -22,6 +22,21 @@ def get_db():
     finally:
         db.close()
 
+
+### Create a new refugee
+
+@router.post(
+    "/", 
+    response_model=schemas.Refugee,
+)
+def create_refugee(refugee: schemas.Refugee, db: Session = Depends(get_db)):
+    # db_user = crud.get_refugees_by_email(db, email=refugee.email)
+    # if db_user:
+    #     raise HTTPException(status_code=400, detail="Email already registered")
+    return crud.create_refugee(db=db, refugee=refugee)
+
+
+### Find refugee
 # By identifier
 @router.get(
     "?id_refugee={id_refugee}",
@@ -107,3 +122,5 @@ def read_refugee_keyword(keyword: str, db: Session = Depends(get_db)):
     if db_refugee is None:
         raise HTTPException(status_code=404, detail="Refugee not found")
     return db_refugee
+
+

@@ -4,7 +4,7 @@ from datetime import date
 from . import models, schemas
 
 
-# Refugees
+# Refugees: READ
 def get_refugees(db: Session, skip: int = 0, limit: int = 100):
     #return db.get(models.Refugee, refugee)
     return db.query(models.Refugee).offset(skip).limit(limit).all()
@@ -30,10 +30,19 @@ def get_refugees_by_birth_date(db: Session, birth_date: date):
 def get_refugees_by_salary(db: Session, salary: int = 0):
     return db.query(models.Refugee).filter(models.Refugee.salary_targeted == salary).all()
 
+def get_refugees_by_email(db: Session, email: str):
+    return db.query(models.Refugee).filter(models.Refugee.email == email).all()
+
 def get_refugees_by_keyword(db: Session, keyword: str):
     return db.query(models.Refugee).filter(models.Refugee.keyword == keyword).all()
 
-
+# Refugees: CREATE
+def create_refugee(db: Session, refugee: schemas.Refugee): # maybe put a keywords_id to link with equivalence table ? 
+    db_refugee = models.Refugee(**refugee.dict())
+    db.add(db_refugee)
+    db.commit()
+    db.refresh(db_refugee)
+    return db_refugee
 
 # Employers
 

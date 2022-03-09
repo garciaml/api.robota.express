@@ -14,13 +14,15 @@ class PointEvent(BaseModel):
     class Config:
         orm_mode = True
 
+
 class Refugee(BaseModel):
     id: int
     first_name: str
     family_name: str
     birth_date: Optional[date] = None
     salary_targeted: Optional[int] = None
-    keyword: str
+    email: str
+    keyword: Optional[str]
 
     class Config:
         orm_mode = True
