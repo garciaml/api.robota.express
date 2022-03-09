@@ -41,3 +41,5 @@ def read_team_and_season(team: str, season: str, db: Session = Depends(get_db)):
             status_code=404, detail="Team and Season combination not found"
         )
     return db_ts
+
+# .get, .post, 

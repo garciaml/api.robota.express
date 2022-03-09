@@ -16,10 +16,24 @@ class PointEvent(BaseModel):
 
 class Refugee(BaseModel):
     id: int
-    given_name: str
+    first_name: str
     family_name: str
     birth_date: Optional[date] = None
     salary_targeted: Optional[int] = None
+    keyword: str
+
+    class Config:
+        orm_mode = True
+
+class EquivalentKeyword(BaseModel):
+    label: str
+    keyword: str
+
+    class Config:
+        orm_mode = True
+
+class Keyword(BaseModel):
+    label: str
 
     class Config:
         orm_mode = True
