@@ -8,6 +8,12 @@ app = FastAPI(
     # openapi_prefix="/prod"
 )
 
+
+@app.get("/", tags=["Root"])
+def read_root() -> dict:
+    return {"message": "welcome to Robota Express API! Go to /docs for the swagger"}
+
+
 app.include_router(players.router, tags=["Players"])
 app.include_router(teams.router, tags=["Teams"])
 app.include_router(seasons.router, tags=["Seasons"])
