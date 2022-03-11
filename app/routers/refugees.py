@@ -57,34 +57,28 @@ def read_refugee_id(id: int, db: Session = Depends(get_db)):
 )
 def read_refugee(first_name: Optional[str] = None, family_name: Optional[str] = None, 
                 email: Optional[str] = None, birth_date: Optional[date] = None, 
-                salary: Optional[int] = None, keyword: Optional[str] = None, db: Session = Depends(get_db)):  
+                salary_targeted: Optional[int] = None, keywords: Optional[str] = None, db: Session = Depends(get_db)):  
+    attributes = {}
     if first_name:
-        # First name
-        if (family_name is None) & (email is None) & (birth_date is None) & (salary is None) & (keyword is None):
-            db_ts = crud.get_refugees_by_first_name(db, first_name=first_name)
-            if db_ts is None:
-                raise HTTPException(
-                    status_code=404, detail="First name not found"
-                )
-        # First name + Family name
-        elif (family_name is not None) & (email is None) & (birth_date is None) & (salary is None) & (keyword is None):
-            db_ts = crud.get_refugees_by_first_and_family_name(db, first_name=first_name, family_name=family_name)
-        # First name + email
-        elif (family_name is None) & (email is not None) & (birth_date is None) & (salary is None) & (keyword is None):
-            db_ts = crud.get_refugees_by_first_name_and_email()
-        # First name + Family name + email
-        elif (family_name is not None) & (email is not None) & (birth_date is None) & (salary is None) & (keyword is None):
-            db_ts = crud.get_refugees_by_first_and_family_name_and_email(db, first_name=first_name, family_name=family_name, email=email)
-        # First name + Family name + email + birth date
-        elif (family_name is not None) & (email is not None) & (birth_date is not None) & (salary is None) & (keyword is None):
-            db_ts = crud.get_refugees_by_first_and_family_name_and_email_and_birth_date(db, first_name=first_name, family_name=family_name, email=email, birth_date=birth_date)
-        # First name + Family name + email + birth date + salary
-        elif (family_name is not None) & (email is not None) & (birth_date is not None) & (salary is not None) & (keyword is None):
-            db_ts = crud.get_refugees_by_first_and_family_name_and_email_and_birth_date_and_salary(db, first_name=first_name, family_name=family_name, email=email, birth_date=birth_date, salary=salary)
-        # First name + Family name + email + birth date + salary + keyword
-        elif (family_name is not None) & (email is not None) & (birth_date is not None) & (salary is not None) & (keyword is not None):
-            db_ts = crud.get_refugees_by_first_and_family_name_and_email_and_birth_date_and_salary_and_keyword(db, first_name=first_name, family_name=family_name, email=email, birth_date=birth_date, salary=salary, keyword=keyword)
-    
+        attributes["first_name"] = first_name
+    if family_name:
+        attributes["family_name"] = family_name
+    if email:
+        attributes["email"] = email
+    if birth_date:
+        attributes["birth_date"] = birth_date
+    if salary_targeted:
+        attributes["salary_targeted"] = salary_targeted
+    if keywords:
+        attributes["keywords"] = keywords
+    # db_ts = crud.get_refugees_by_attributes(db, first_name=first_name, family_name=family_name, 
+    #             email=email, birth_date=birth_date, 
+    #             salary_targeted=salary_targeted, keywords=keywords)
+    db_ts = crud.get_refugees_by_attributes(db, attributes)
+    if db_ts is None:
+        raise HTTPException(
+            status_code=404, detail="First name not found"
+        )
     return db_ts
 
 
