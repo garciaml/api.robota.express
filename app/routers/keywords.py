@@ -38,7 +38,6 @@ def create_keyword(keyword: schemas.Keyword, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Keyword already existing")
     return crud.create_keyword(db=db, keyword=keyword)
 
-
 ### Find a Keyword by label
 path = "/"
 @router.get(

@@ -25,6 +25,7 @@ def create_refugee(db: Session, refugee: schemas.Refugee): # maybe put a keyword
     db.refresh(db_refugee)
     return db_refugee
 
+# EquivalentKeyword.label.in_(keywords.split(","))
 
 # Keywords: CREATE
 # def get_equikeywords_by_keyword(db: Session, keyword: str):
@@ -45,6 +46,10 @@ def create_equikeyword(db: Session, equikeyword: schemas.EquivalentKeyword):
     db.commit()
     db.refresh(db_equikeyword)
     return db_equikeyword
+
+
+# get refugee by keywords:
+# https://stackoverflow.com/questions/14534321/how-can-i-search-the-table-of-a-flask-sqlalchemy-many-to-many-relationship
 
 def get_equikeywords_by_label(db: Session, label: str):
     return db.query(models.EquivalentKeyword).filter(models.EquivalentKeyword.label == label).first()

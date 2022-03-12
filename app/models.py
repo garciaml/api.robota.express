@@ -1,5 +1,5 @@
 from unicodedata import category
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Date, Float, Text
+from sqlalchemy import Table, Boolean, Column, ForeignKey, Integer, String, Date, Float, Text
 from sqlalchemy.orm import relationship
 
 from .database import Base
@@ -16,6 +16,11 @@ from .database import Base
 # - create table Funder
 
 
+association_table = Table('association', Base.metadata,
+    Column('refugee_id', ForeignKey('refugee.id')),
+    Column('equikeyword_label', ForeignKey('equikeyword.label'))
+    )
+
 class Refugee(Base):
     __tablename__ = "refugee"
 
@@ -26,13 +31,22 @@ class Refugee(Base):
     salary_targeted = Column(Integer)
     email = Column(String(50))
     # keywords = relationship("Item", back_populates="owner")
-    keywords = Column(Text) # text of words separated by a comma (to be ordered and cleaned in the front-end part, before storing in json?)
+    # keywords = Column(Text) # text of words separated by a comma (to be ordered and cleaned in the front-end part, before storing in json?)
+    keywords = relationship("EquivalentKeyword", 
+                    secondary=association_table,
+                    back_populates="refugee_id")
+
 
 class EquivalentKeyword(Base):
     __tablename__ = "equikeyword"
 
     label = Column(String(50), primary_key=True, index=True)
     keyword = Column(String(50), ForeignKey('keyword.label')) # pb how to filter
+    refugee_id = relationship(
+        "Refugee",
+        secondary=association_table,
+        back_populates="keywords"
+    )
 
 class Keyword(Base):
     __tablename__ = "keyword"
