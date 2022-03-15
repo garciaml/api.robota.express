@@ -22,6 +22,17 @@ class RefugeeCreate(RefugeeBase):
     class Config:
         orm_mode = True
 
+class RefugeeUpdate(BaseModel):
+    id: int
+    first_name: Optional[str] = None
+    family_name: Optional[str] = None
+    birth_date: Optional[date] = None
+    salary_targeted: Optional[int] = None
+    email: Optional[str] = None
+    keywords: Optional[List[str]] = None
+
+    class Config:
+        orm_mode = True
 
 class EquivalentKeywordBase(BaseModel):
 # class EquivalentKeyword(BaseModel):

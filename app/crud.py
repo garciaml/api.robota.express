@@ -10,7 +10,16 @@ from . import models, schemas
 # get refugee by keywords:
 # https://stackoverflow.com/questions/14534321/how-can-i-search-the-table-of-a-flask-sqlalchemy-many-to-many-relationship
 
+# comparison between commit, flush, expire, refresh, and merge
+#  https://michaelcho.me/article/sqlalchemy-commit-flush-expire-refresh-merge-whats-the-difference 
 
+# update: https://stackoverflow.com/questions/63143731/update-sqlalchemy-orm-existing-model-from-posted-pydantic-model-in-fastapi
+# https://github.com/mikey-no/pydantic-sqlalchemy-experiments/blob/main/main.py
+
+# TODO:
+# - case there is no equikeyword existing when creating refugee
+# - delete by id
+# for get by keywords, look for equivalent keywords thanks to the generic keywords (in order to find more people who may talk different language)
 # Refugees: 
 # CREATE
 def create_refugee(db: Session, refugee: schemas.RefugeeCreate): # maybe put a keywords_id to link with equivalence table ?
@@ -29,7 +38,6 @@ def create_refugee(db: Session, refugee: schemas.RefugeeCreate): # maybe put a k
             # db.get(models.EquivalentKeyword, k)
             # db.query(models.EquivalentKeyword).filter_by(label=k)
         )
-        # db_refugee.keywords.append(k)
     db.add(db_refugee)
     db.commit()
     db.refresh(db_refugee)
@@ -41,13 +49,9 @@ def get_refugees(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Refugee).offset(skip).limit(limit).all()
 
 def get_refugees_by_id(db: Session, id: int = 0):
-    # return db.query(models.Refugee).filter(models.Refugee.id == id).all()
     return db.get(models.Refugee, id)
 
 def get_refugees_by_attributes(db: Session, attributes):
-    # keyword = attributes["keywords"]
-    # del attributes["keywords"]
-    # and next maybe add a filter to put filter(models.Refugee.keywords.contains(keywords))
     return db.query(models.Refugee).filter_by(**attributes).all()
 
 def get_refugees_by_keywords_and_attributes(db: Session, keywords, attributes, inclusive: bool = True):
@@ -60,7 +64,6 @@ def get_refugees_by_keywords_and_attributes(db: Session, keywords, attributes, i
     return db.query(models.Refugee).filter(cond).filter_by(**attributes).all()
 
 def get_refugees_by_keywords(db: Session, keywords, inclusive: bool = True):
-    # return [db.query(models.EquivalentKeyword).filter(models.EquivalentKeyword.label.in_(keywords)).label("refugee_id")]
     cond = or_(*[models.EquivalentKeyword.label == keyword for keyword in keywords]) 
     equikeywords = db.query(models.EquivalentKeyword).filter(cond)
     if inclusive:
@@ -68,6 +71,37 @@ def get_refugees_by_keywords(db: Session, keywords, inclusive: bool = True):
     else:
         cond = and_(*[models.Refugee.keywords.contains(keyword) for keyword in equikeywords]) 
     return db.query(models.Refugee).filter(cond).all()
+
+# UPDATE
+def update_refugees(db: Session, refugee: schemas.RefugeeUpdate):
+    # get the existing data
+    db_refugee = db.query(models.Refugee).filter(models.Refugee.id == refugee.id).one_or_none()
+    # we keep only the fields that are not empty
+    new_refugee = {}
+    for k in refugee.dict().keys():
+        if refugee.dict()[k]:
+            new_refugee[k] = refugee.dict()[k]
+    # we need items of models.EquivalentKeyword
+    if refugee.dict()['keywords']:
+        new_refugee["keywords"] = []
+        for k in refugee.dict()['keywords']:
+            # db_equikeyword = db.get(models.EquivalentKeyword, k)
+            # if db_equikeyword is None:
+            #     create_equikeyword(db, {"label": k}) # TODOs: add other tests to see if we can put a generic keyword 
+            #     db_equikeyword = db.get(models.EquivalentKeyword, k)
+            db_equikeyword = db.query(models.EquivalentKeyword).filter_by(label=k).first()
+            new_refugee["keywords"].append(db_equikeyword)
+    # update the fields to update
+    for var, value in new_refugee.items(): setattr(db_refugee, var, value)
+    # make updates directly saved and visible in the database
+    db.commit()
+    db.refresh(db_refugee)
+    return db_refugee
+
+# DELETE
+
+
+
 
 # EquivalentKeywords:
 # CREATE

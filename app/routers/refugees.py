@@ -69,10 +69,6 @@ def read_refugee_id(id: int, db: Session = Depends(get_db)):
     response_model=List[schemas.Refugee],
     summary="get refugee looking by first name, family name, birth_date, salary, keyword, or just show a list of refugees between the number skip (by default None) to the number limit (by default None)",
 )
-# def read_refugee(first_name: Optional[str] = None, family_name: Optional[str] = None, 
-#                 email: Optional[str] = None, birth_date: Optional[date] = None, 
-#                 salary_targeted: Optional[int] = None, keywords: Optional[List[str]] = None, 
-#                 skip: Optional[int] = 0, limit: Optional[int] = 100, db: Session = Depends(get_db)): 
 def read_refugee(first_name: Optional[str] = None, family_name: Optional[str] = None, 
                 email: Optional[str] = None, birth_date: Optional[date] = None, 
                 salary_targeted: Optional[int] = None, keywords: Optional[List[str]] = Query(None), 
@@ -104,3 +100,15 @@ def read_refugee(first_name: Optional[str] = None, family_name: Optional[str] = 
             return db_refugee
     else:
         return db_ts
+
+### Update refugee
+@router.put(
+    "/{id}",
+    response_model=schemas.Refugee,
+    summary="Update a refugee",
+)
+def update_refugee(refugee: schemas.RefugeeUpdate, db: Session = Depends(get_db)):
+    db_refugee = crud.get_refugees_by_id(db, id=refugee.id)
+    if db_refugee is None:
+        raise HTTPException(status_code=404, detail="Refugee not found")
+    return crud.update_refugees(db, refugee)
