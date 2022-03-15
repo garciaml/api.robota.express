@@ -9,23 +9,9 @@ from . import models, schemas
 # get refugee by keywords:
 # https://stackoverflow.com/questions/14534321/how-can-i-search-the-table-of-a-flask-sqlalchemy-many-to-many-relationship
 
-# Refugees: READ
-def get_refugees(db: Session, skip: int = 0, limit: int = 100):
-    #return db.get(models.Refugee, refugee)
-    return db.query(models.Refugee).offset(skip).limit(limit).all()
 
-def get_refugees_by_id(db: Session, id: int = 0):
-    # return db.query(models.Refugee).filter(models.Refugee.id == id).all()
-    return db.get(models.Refugee, id)
-
-def get_refugees_by_attributes(db: Session, attributes):
-    # keyword = attributes["keywords"]
-    # del attributes["keywords"]
-    # and next maybe add a filter to put filter(models.Refugee.keywords.contains(keywords))
-    return db.query(models.Refugee).filter_by(**attributes).all()
-
-
-# Refugees: CREATE
+# Refugees: 
+# CREATE
 def create_refugee(db: Session, refugee: schemas.RefugeeCreate): # maybe put a keywords_id to link with equivalence table ?
     new_refugee = refugee.dict()
     new_refugee["keywords"] = []
@@ -47,6 +33,22 @@ def create_refugee(db: Session, refugee: schemas.RefugeeCreate): # maybe put a k
     db.commit()
     db.refresh(db_refugee)
     return db_refugee
+
+# READ
+def get_refugees(db: Session, skip: int = 0, limit: int = 100):
+    #return db.get(models.Refugee, refugee)
+    return db.query(models.Refugee).offset(skip).limit(limit).all()
+
+def get_refugees_by_id(db: Session, id: int = 0):
+    # return db.query(models.Refugee).filter(models.Refugee.id == id).all()
+    return db.get(models.Refugee, id)
+
+def get_refugees_by_attributes(db: Session, attributes):
+    # keyword = attributes["keywords"]
+    # del attributes["keywords"]
+    # and next maybe add a filter to put filter(models.Refugee.keywords.contains(keywords))
+    return db.query(models.Refugee).filter_by(**attributes).all()
+
 
 
 # EquivalentKeywords:

@@ -5,15 +5,12 @@ from datetime import date
 
 
 class RefugeeBase(BaseModel):
-# class Refugee(BaseModel):
     id: int
     first_name: str
     family_name: str
     birth_date: Optional[date] = None
     salary_targeted: Optional[int] = None
     email: str
-    # keywords: Optional[List[str]] = None
-    # keywords_list: Optional[List[str]] = None
 
     class Config:
         orm_mode = True
@@ -24,6 +21,7 @@ class RefugeeCreate(RefugeeBase):
 
     class Config:
         orm_mode = True
+
 
 class EquivalentKeywordBase(BaseModel):
 # class EquivalentKeyword(BaseModel):
