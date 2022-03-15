@@ -16,7 +16,7 @@ from .database import Base
 # - create table Funder
 
 
-association_table = Table('association', Base.metadata,
+association_table = Table('association_refugee_equikeyword', Base.metadata,
     Column('refugee_id', ForeignKey('refugee.id')),
     Column('equikeyword_label', ForeignKey('equikeyword.label'))
     )

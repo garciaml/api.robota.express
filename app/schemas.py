@@ -4,21 +4,50 @@ from pydantic import BaseModel
 from datetime import date
 
 
-class Refugee(BaseModel):
+class RefugeeBase(BaseModel):
+# class Refugee(BaseModel):
     id: int
     first_name: str
     family_name: str
     birth_date: Optional[date] = None
     salary_targeted: Optional[int] = None
     email: str
-    keywords: str
+    # keywords: Optional[List[str]] = None
+    # keywords_list: Optional[List[str]] = None
 
     class Config:
         orm_mode = True
 
-class EquivalentKeyword(BaseModel):
+class RefugeeCreate(RefugeeBase):
+    # keywords: Optional[List[EquivalentKeywordBase]] = None
+    keywords: Optional[List[str]] = None
+
+    class Config:
+        orm_mode = True
+
+class EquivalentKeywordBase(BaseModel):
+# class EquivalentKeyword(BaseModel):
     label: str
     keyword: str
+    # refugee_id: Optional[List[int]] = None
+
+    class Config:
+        orm_mode = True
+
+class EquivalentKeywordCreate(EquivalentKeywordBase):
+    # refugee_id: Optional[List[RefugeeBase]] = None
+    refugee_id: Optional[List[str]] = None
+
+class Refugee(RefugeeBase):
+    keywords: Optional[List[EquivalentKeywordBase]] = None
+    # keywords: Optional[List[str]] = None
+
+    class Config:
+        orm_mode = True
+
+class EquivalentKeyword(EquivalentKeywordBase):
+    refugee_id: Optional[List[RefugeeBase]] = None
+    # refugee_id: Optional[List[str]]
 
     class Config:
         orm_mode = True

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app import crud, models, schemas
 from app.database import SessionLocal, engine
-from typing import List
+from typing import List, Optional
 from datetime import date
 
 # router = APIRouter()
@@ -41,9 +41,8 @@ def create_equikeyword(equikeyword: schemas.EquivalentKeyword, db: Session = Dep
 
 
 ### Find a Keyword by label
-path = "/"
 @router.get(
-    path + "{label}",
+    "/{label}",
     response_model=schemas.EquivalentKeyword,
     summary="get equivalent keyword by label",
 )
@@ -52,16 +51,21 @@ def read_equikeyword_label(label: str, db: Session = Depends(get_db)):
     if db_equikeyword is None:
         raise HTTPException(status_code=404, detail="Equivalent Keyword not found")
     return db_equikeyword
-path += "label/"
 
 @router.get(
-    path + "{keyword}",
+    "/",
     response_model=List[schemas.EquivalentKeyword],
-    summary="get equivalent keyword by keyword",
+    summary="get equivalent keyword by attributes",
 )
-def read_equikeyword_keyword(keyword: str, db: Session = Depends(get_db)):
-    db_equikeyword = crud.get_equikeywords_by_keyword(db, keyword=keyword)
+def read_equikeyword_keyword(keyword: Optional[str] = None, refugee_id: Optional[int] = None, db: Session = Depends(get_db)):
+    db_equikeyword = crud.get_equikeywords_by_attributes(db, {"keyword": keyword})
     if db_equikeyword is None:
         raise HTTPException(status_code=404, detail="Equivalent Keyword not found")
+    # The dictionary "attributes" must not contain None values 
+    attributes = {}
+    if keyword:
+        attributes["keyword"] = keyword
+    if refugee_id:
+        attributes["refugee_id"] = refugee_id
+    db_equikeyword = crud.get_equikeywords_by_attributes(db, attributes=attributes)
     return db_equikeyword
-path += "keyword/"

@@ -29,10 +29,24 @@ def get_db():
     "/", 
     response_model=schemas.Refugee,
 )
-def create_refugee(refugee: schemas.Refugee, db: Session = Depends(get_db)):
-    db_user = crud.get_refugees_by_email(db, email=refugee.email)
+def create_refugee(refugee: schemas.RefugeeCreate, db: Session = Depends(get_db)):
+    db_user = crud.get_refugees_by_attributes(db, {"email":refugee.email})
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
+    # test if each keyword in equikeywords
+    # for keyword in refugee.keywords:
+    #     db_equikeyword = crud.get_equikeywords_by_attributes(db, {"label": keyword})
+    #     if db_equikeyword is None:
+            # if not ,
+            # verify many possibilities: 
+            # - changing the case (uppercase, lowercase, firt letter in uppercase, the rest in lowercase)
+            # - translating into english (via google traduction with automatic detection of language)
+            # - other test ? 
+            # create it in equikeywords with or without generic keyword (according to previous tests)
+            # crud.create_equikeyword(db=db, equikeyword={"label": keyword, "keyword": None, "refugee_id": [refugee.id]})
+            # crud.create_equikeyword(db=db, equikeyword={"label": keyword, "keyword": ""})
+        # else:
+        #     crud.update_equikeyword_by_attributes(db=db, equikeyword={"label": keyword, "refugee_id": [refugee.id]})
     return crud.create_refugee(db=db, refugee=refugee)
 
 
@@ -57,7 +71,7 @@ def read_refugee_id(id: int, db: Session = Depends(get_db)):
 )
 def read_refugee(first_name: Optional[str] = None, family_name: Optional[str] = None, 
                 email: Optional[str] = None, birth_date: Optional[date] = None, 
-                salary_targeted: Optional[int] = None, keywords: Optional[str] = None, db: Session = Depends(get_db)):  
+                salary_targeted: Optional[int] = None, keywords: Optional[List[str]] = None, db: Session = Depends(get_db)):  
     # The dictionary "attributes" must not contain None values 
     attributes = {}
     if first_name:
@@ -71,7 +85,20 @@ def read_refugee(first_name: Optional[str] = None, family_name: Optional[str] = 
     if salary_targeted:
         attributes["salary_targeted"] = salary_targeted
     if keywords:
-        attributes["keywords"] = keywords
+        attributes["keywords"] = []
+        # test if each keyword in equikeywords
+        for keyword in keywords:
+            # db_equikeyword = crud.get_equikeywords_by_attributes(db, {"label": keyword})
+            # if db_equikeyword is None:
+            #     # if not ,
+            #     # verify many possibilities: 
+            #     # - changing the case (uppercase, lowercase, firt letter in uppercase, the rest in lowercase)
+            #     # - translating into english (via google traduction with automatic detection of language)
+            #     # - other test ? 
+            #     # create it in equikeywords with or without generic keyword (according to previous tests)
+            #     crud.create_equikeyword(db=db, equikeyword={"label": keyword, "keyword": None, "refugee_id": })
+            # add keywords to attributes
+            attributes["keywords"].append(keyword)
     db_ts = crud.get_refugees_by_attributes(db, attributes)
     if db_ts is None:
         raise HTTPException(
