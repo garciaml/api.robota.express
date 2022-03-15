@@ -90,26 +90,12 @@ def read_refugee(first_name: Optional[str] = None, family_name: Optional[str] = 
     if salary_targeted:
         attributes["salary_targeted"] = salary_targeted
     if keywords:
-        attributes["keywords"] = keywords
-        # attributes["keywords"] = []
-        # # test if each keyword in equikeywords
-        # for keyword in keywords:
-        #     # db_equikeyword = crud.get_equikeywords_by_attributes(db, {"label": keyword})
-        #     # if db_equikeyword is None:
-        #     #     # if not ,
-        #     #     # verify many possibilities: 
-        #     #     # - changing the case (uppercase, lowercase, firt letter in uppercase, the rest in lowercase)
-        #     #     # - translating into english (via google traduction with automatic detection of language)
-        #     #     # - other test ? 
-        #     #     # create it in equikeywords with or without generic keyword (according to previous tests)
-        #     #     crud.create_equikeyword(db=db, equikeyword={"label": keyword, "keyword": None, "refugee_id": })
-        #     # add keywords to attributes
-        #     attributes["keywords"].append(keyword)
-    db_ts = crud.get_refugees_by_attributes(db, attributes)
-    # if db_ts is None:
-    #     raise HTTPException(
-    #         status_code=404, detail="Refugee not found"
-    #     )
+        if len(attributes) < 1:
+            db_ts = crud.get_refugees_by_keywords(db, keywords)
+        else:
+            db_ts = crud.get_refugees_by_keywords_and_attributes(db, keywords, attributes) # TODO: add option exclusive (by default inclusive) to filter more
+    else:
+        db_ts = crud.get_refugees_by_attributes(db, attributes)
     if db_ts is None:
         db_refugee = crud.get_refugees(db, skip=skip, limit=limit)
         if db_refugee is None:

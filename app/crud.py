@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from datetime import date
+from sqlalchemy.sql import or_, and_
 
 from . import models, schemas
 
@@ -49,7 +50,24 @@ def get_refugees_by_attributes(db: Session, attributes):
     # and next maybe add a filter to put filter(models.Refugee.keywords.contains(keywords))
     return db.query(models.Refugee).filter_by(**attributes).all()
 
+def get_refugees_by_keywords_and_attributes(db: Session, keywords, attributes, inclusive: bool = True):
+    cond = or_(*[models.EquivalentKeyword.label == keyword for keyword in keywords]) 
+    equikeywords = db.query(models.EquivalentKeyword).filter(cond)
+    if inclusive:
+        cond = or_(*[models.Refugee.keywords.contains(keyword) for keyword in equikeywords])
+    else:
+        cond = and_(*[models.Refugee.keywords.contains(keyword) for keyword in equikeywords]) 
+    return db.query(models.Refugee).filter(cond).filter_by(**attributes).all()
 
+def get_refugees_by_keywords(db: Session, keywords, inclusive: bool = True):
+    # return [db.query(models.EquivalentKeyword).filter(models.EquivalentKeyword.label.in_(keywords)).label("refugee_id")]
+    cond = or_(*[models.EquivalentKeyword.label == keyword for keyword in keywords]) 
+    equikeywords = db.query(models.EquivalentKeyword).filter(cond)
+    if inclusive:
+        cond = or_(*[models.Refugee.keywords.contains(keyword) for keyword in equikeywords])
+    else:
+        cond = and_(*[models.Refugee.keywords.contains(keyword) for keyword in equikeywords]) 
+    return db.query(models.Refugee).filter(cond).all()
 
 # EquivalentKeywords:
 # CREATE
