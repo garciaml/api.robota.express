@@ -16,11 +16,15 @@ from . import models, schemas
 # update: https://stackoverflow.com/questions/63143731/update-sqlalchemy-orm-existing-model-from-posted-pydantic-model-in-fastapi
 # https://github.com/mikey-no/pydantic-sqlalchemy-experiments/blob/main/main.py
 
+# several ways to update + count number of logins of users
+# https://stackoverflow.com/questions/9667138/how-to-update-sqlalchemy-row-entry 
+
 # TODO:
 # - case there is no equikeyword existing when creating refugee
 # - delete by id
-# for get by keywords, look for equivalent keywords thanks to the generic keywords (in order to find more people who may talk different language)
-# Refugees: 
+# - for get by keywords, look for equivalent keywords thanks to the generic keywords (in order to find more people who may talk different language)
+
+### Refugees: 
 # CREATE
 def create_refugee(db: Session, refugee: schemas.RefugeeCreate): # maybe put a keywords_id to link with equivalence table ?
     new_refugee = refugee.dict()
@@ -87,7 +91,7 @@ def update_refugees(db: Session, refugee: schemas.RefugeeUpdate):
         for k in refugee.dict()['keywords']:
             # db_equikeyword = db.get(models.EquivalentKeyword, k)
             # if db_equikeyword is None:
-            #     create_equikeyword(db, {"label": k}) # TODOs: add other tests to see if we can put a generic keyword 
+            #     create_equikeyword(db, {"label": k}) # TODO: add other tests to see if we can put a generic keyword 
             #     db_equikeyword = db.get(models.EquivalentKeyword, k)
             db_equikeyword = db.query(models.EquivalentKeyword).filter_by(label=k).first()
             new_refugee["keywords"].append(db_equikeyword)
@@ -99,8 +103,11 @@ def update_refugees(db: Session, refugee: schemas.RefugeeUpdate):
     return db_refugee
 
 # DELETE
-
-
+def delete_refugees(db: Session, id: int):
+    db_refugee = db.get(models.Refugee, id)
+    db.delete(db_refugee)
+    db.commit()
+    return True
 
 
 # EquivalentKeywords:

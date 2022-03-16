@@ -112,3 +112,16 @@ def update_refugee(refugee: schemas.RefugeeUpdate, db: Session = Depends(get_db)
     if db_refugee is None:
         raise HTTPException(status_code=404, detail="Refugee not found")
     return crud.update_refugees(db, refugee)
+
+### Delete refugee
+@router.delete(
+    "/{id}",
+    response_model=bool,
+    summary="Delete a refugee",
+)
+def delete_refugee(id: int, db: Session = Depends(get_db)):
+    db_refugee = crud.get_refugees_by_id(db, id=id)
+    if db_refugee is None:
+        raise HTTPException(status_code=404, detail="Refugee not found")
+    else:
+        return crud.delete_refugees(db, id)
