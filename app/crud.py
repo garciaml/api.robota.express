@@ -21,7 +21,6 @@ from . import models, schemas
 
 # TODO:
 # - case there is no equikeyword existing when creating refugee
-# - delete by id
 # - for get by keywords, look for equivalent keywords thanks to the generic keywords (in order to find more people who may talk different language)
 
 ### Refugees: 
@@ -32,11 +31,11 @@ def create_refugee(db: Session, refugee: schemas.RefugeeCreate): # maybe put a k
     # db_refugee = models.Refugee(**refugee.dict())
     db_refugee = models.Refugee(**new_refugee)
     for k in refugee.dict()['keywords']:
+        db_equikeyword = db.get(models.EquivalentKeyword, k)
+        if db_equikeyword is None:
+            create_equikeyword(db, {"label": k}) # TODOs: add other tests to see if we can put a generic keyword 
+            db_equikeyword = db.get(models.EquivalentKeyword, k)
         # db_equikeyword = db.get(models.EquivalentKeyword, k)
-        # if db_equikeyword is None:
-        #     create_equikeyword(db, {"label": k}) # TODOs: add other tests to see if we can put a generic keyword 
-        #     db_equikeyword = db.get(models.EquivalentKeyword, k)
-        db_equikeyword = db.query(models.EquivalentKeyword).filter_by(label=k).first()
         db_refugee.keywords.append(
             db_equikeyword
             # db.get(models.EquivalentKeyword, k)
@@ -113,7 +112,7 @@ def delete_refugees(db: Session, id: int):
 # EquivalentKeywords:
 # CREATE
 def create_equikeyword(db: Session, equikeyword: schemas.EquivalentKeyword):
-    db_equikeyword = models.EquivalentKeyword(**equikeyword.dict())
+    db_equikeyword = models.EquivalentKeyword(**equikeyword)
     db.add(db_equikeyword)
     db.commit()
     db.refresh(db_equikeyword)

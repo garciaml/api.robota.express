@@ -37,7 +37,7 @@ class RefugeeUpdate(BaseModel):
 class EquivalentKeywordBase(BaseModel):
 # class EquivalentKeyword(BaseModel):
     label: str
-    keyword: str
+    keyword: Optional[str] = None
     # refugee_id: Optional[List[int]] = None
 
     class Config:
