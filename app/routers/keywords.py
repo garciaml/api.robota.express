@@ -39,9 +39,8 @@ def create_keyword(keyword: schemas.Keyword, db: Session = Depends(get_db)):
     return crud.create_keyword(db=db, keyword=keyword)
 
 ### Find a Keyword by label
-path = "/"
 @router.get(
-    path + "{label}",
+    "/{label}",
     response_model=schemas.Keyword,
     summary="get keyword by label",
 )
@@ -50,4 +49,17 @@ def read_keyword_label(label: str, db: Session = Depends(get_db)):
     if db_keyword is None:
         raise HTTPException(status_code=404, detail="Keyword not found")
     return db_keyword
+
+### Delete Keyword
+@router.delete(
+    "/{label}",
+    response_model=bool,
+    summary="Delete a Keyword",
+)
+def delete_refugee(label: str, db: Session = Depends(get_db)):
+    db_refugee = crud.get_keywords_by_label(db, label=label)
+    if db_refugee is None:
+        raise HTTPException(status_code=404, detail="Keyword not found")
+    else:
+        return crud.delete_keyword(db, label)
 

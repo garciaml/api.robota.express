@@ -24,7 +24,8 @@ import unidecode
 # TODO:
 # - case there is equikeyword existing but in another language when creating refugee
 # - for get by keywords, look for equivalent keywords thanks to the generic keywords (in order to find more people who may talk different language)
-
+#
+# 
 
 
 ### Refugees: 
@@ -199,7 +200,8 @@ def generate_new_equikeyword_when_no_existing(db: Session, keyword: str):
     return new_equikeyword
 
 
-# Keywords: CREATE
+### Keywords: 
+# CREATE
 def create_keyword(db: Session, keyword: schemas.Keyword):
     db_keyword = models.Keyword(**keyword)
     db.add(db_keyword)
@@ -210,6 +212,12 @@ def create_keyword(db: Session, keyword: schemas.Keyword):
 def get_keywords_by_label(db: Session, label: str):
     return db.query(models.Keyword).filter(models.Keyword.label.like(label)).first()
 
+# DELETE
+def delete_keyword(db: Session, label: str):
+    db_keyword = db.get(models.Keyword, label)
+    db.delete(db_keyword)
+    db.commit()
+    return True
 
 
 # Employers

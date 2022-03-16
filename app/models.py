@@ -41,7 +41,7 @@ class EquivalentKeyword(Base):
     __tablename__ = "equikeyword"
 
     label = Column(String(50), primary_key=True, index=True)
-    keyword = Column(String(50), ForeignKey('keyword.label')) # pb how to filter
+    keyword = Column(String(50), ForeignKey('keyword.label')) # IMPORTANT: when removing a Keyword, not erased here !
     refugee_id = relationship(
         "Refugee",
         secondary=association_table,
