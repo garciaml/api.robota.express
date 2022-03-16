@@ -25,6 +25,8 @@ import unidecode
 # - case there is equikeyword existing but in another language when creating refugee
 # - for get by keywords, look for equivalent keywords thanks to the generic keywords (in order to find more people who may talk different language)
 
+
+
 ### Refugees: 
 # CREATE
 def create_refugee(db: Session, refugee: schemas.RefugeeCreate): # maybe put a keywords_id to link with equivalence table ?
@@ -34,56 +36,7 @@ def create_refugee(db: Session, refugee: schemas.RefugeeCreate): # maybe put a k
     db_refugee = models.Refugee(**new_refugee)
     for k in refugee.dict()['keywords']:
         if db.get(models.EquivalentKeyword, k) is None:
-            # first, we need to test if we can find a generic keyword
-            if db.get(models.Keyword, k):
-                new_equikeyword = {"label": k, "keyword": k}
-            # remove accent
-            unaccented_string = unidecode.unidecode(k)
-            unaccented_string_lower = unaccented_string.lower()
-            unaccented_string_upper = unaccented_string.upper()
-            unaccented_string_capital = unaccented_string.capitalize()
-            if db.get(models.EquivalentKeyword, unaccented_string):
-                db_equikeyword_other = db.get(models.EquivalentKeyword, unaccented_string)
-                new_equikeyword = {"label": k, "keyword": db_equikeyword_other.keyword}
-            elif db.get(models.Keyword, unaccented_string):
-                new_equikeyword = {"label": k, "keyword": unaccented_string}
-            elif db.get(models.EquivalentKeyword, unaccented_string_lower):
-                db_equikeyword_other = db.get(models.EquivalentKeyword, unaccented_string_lower)
-                new_equikeyword = {"label": k, "keyword": db_equikeyword_other.keyword}
-            elif db.get(models.Keyword, unaccented_string_lower):
-                new_equikeyword = {"label": k, "keyword": unaccented_string_lower}
-            elif db.get(models.EquivalentKeyword, unaccented_string_upper):
-                db_equikeyword_other = db.get(models.EquivalentKeyword, unaccented_string_upper)
-                new_equikeyword = {"label": k, "keyword": db_equikeyword_other.keyword}
-            elif db.get(models.Keyword, unaccented_string_upper):
-                new_equikeyword = {"label": k, "keyword": unaccented_string_upper}
-            elif db.get(models.EquivalentKeyword, unaccented_string_capital):
-                db_equikeyword_other = db.get(models.EquivalentKeyword, unaccented_string_capital)
-                new_equikeyword = {"label": k, "keyword": db_equikeyword_other.keyword}
-            elif db.get(models.Keyword, unaccented_string_capital):
-                new_equikeyword = {"label": k, "keyword": unaccented_string_capital}
-            # transform the case
-            # capitalize and verify in the table Keyword
-            capital_k = k.capitalize()
-            if db.get(models.EquivalentKeyword, capital_k):
-                db_equikeyword_other = db.get(models.EquivalentKeyword, capital_k)
-                new_equikeyword = {"label": k, "keyword": db_equikeyword_other.keyword}
-            elif db.get(models.Keyword, capital_k):
-                new_equikeyword = {"label": k, "keyword": capital_k}
-            # lower and verify in EquivalentKeyword
-            lower_k = k.lower()
-            if db.get(models.EquivalentKeyword, lower_k):
-                db_equikeyword_other = db.get(models.EquivalentKeyword, lower_k)
-                new_equikeyword = {"label": k, "keyword": db_equikeyword_other.keyword}
-            elif db.get(models.Keyword, lower_k):
-                new_equikeyword = {"label": k, "keyword": lower_k}
-            # upper and verify in EquivalentKeyword
-            upper_k = k.upper()
-            if db.get(models.EquivalentKeyword, upper_k):
-                db_equikeyword_other = db.get(models.EquivalentKeyword, upper_k)
-                new_equikeyword = {"label": k, "keyword": db_equikeyword_other.keyword}
-            elif db.get(models.Keyword, upper_k):
-                new_equikeyword = {"label": k, "keyword": upper_k}
+            new_equikeyword = generate_new_equikeyword_when_no_existing(db, k)
             if new_equikeyword:
                 create_equikeyword(db, new_equikeyword)
             else:
@@ -140,14 +93,19 @@ def update_refugees(db: Session, refugee: schemas.RefugeeUpdate):
         if refugee.dict()[k]:
             new_refugee[k] = refugee.dict()[k]
     # we need items of models.EquivalentKeyword
+    # BE CAREFUL: it fully replaces keywords by new values; 
+    # if you want to add or delete certain values, create your list of keywords accordingly.
     if refugee.dict()['keywords']:
         new_refugee["keywords"] = []
         for k in refugee.dict()['keywords']:
-            # db_equikeyword = db.get(models.EquivalentKeyword, k)
-            # if db_equikeyword is None:
-            #     create_equikeyword(db, {"label": k}) # TODO: add other tests to see if we can put a generic keyword 
-            #     db_equikeyword = db.get(models.EquivalentKeyword, k)
-            db_equikeyword = db.query(models.EquivalentKeyword).filter_by(label=k).first()
+            if db.get(models.EquivalentKeyword, k) is None:
+                new_equikeyword = generate_new_equikeyword_when_no_existing(db, k)
+                if new_equikeyword:
+                    create_equikeyword(db, new_equikeyword)
+                else:
+                    # no generic keyword found
+                    create_equikeyword(db, {"label": k})
+            db_equikeyword = db.get(models.EquivalentKeyword, k)
             new_refugee["keywords"].append(db_equikeyword)
     # update the fields to update
     for var, value in new_refugee.items(): setattr(db_refugee, var, value)
@@ -164,7 +122,8 @@ def delete_refugees(db: Session, id: int):
     return True
 
 
-# EquivalentKeywords:
+
+### EquivalentKeywords:
 # CREATE
 def create_equikeyword(db: Session, equikeyword: schemas.EquivalentKeyword):
     db_equikeyword = models.EquivalentKeyword(**equikeyword)
@@ -184,6 +143,60 @@ def get_equikeywords_by_attributes(db: Session, attributes):
 def update_equikeyword_refugee(db: Session, attributes):
     return db.query(models.EquivalentKeyword).filter(models.EquivalentKeyword.label == attributes['label']).update({"refugee_id": (models.EquivalentKeyword.refugee_id + attributes['refugee_id'])})
 #def update_equikeyword_keyword(db: Session, attributes):
+
+def generate_new_equikeyword_when_no_existing(db: Session, keyword: str):
+    new_equikeyword = None
+    # first, we need to test if we can find a generic keyword
+    if db.get(models.Keyword, keyword):
+        new_equikeyword = {"label": keyword, "keyword": keyword}
+    # remove accent
+    unaccented_string = unidecode.unidecode(keyword)
+    unaccented_string_lower = unaccented_string.lower()
+    unaccented_string_upper = unaccented_string.upper()
+    unaccented_string_capital = unaccented_string.capitalize()
+    if db.get(models.EquivalentKeyword, unaccented_string):
+        db_equikeyword_other = db.get(models.EquivalentKeyword, unaccented_string)
+        new_equikeyword = {"label": keyword, "keyword": db_equikeyword_other.keyword}
+    elif db.get(models.Keyword, unaccented_string):
+        new_equikeyword = {"label": keyword, "keyword": unaccented_string}
+    elif db.get(models.EquivalentKeyword, unaccented_string_lower):
+        db_equikeyword_other = db.get(models.EquivalentKeyword, unaccented_string_lower)
+        new_equikeyword = {"label": keyword, "keyword": db_equikeyword_other.keyword}
+    elif db.get(models.Keyword, unaccented_string_lower):
+        new_equikeyword = {"label": keyword, "keyword": unaccented_string_lower}
+    elif db.get(models.EquivalentKeyword, unaccented_string_upper):
+        db_equikeyword_other = db.get(models.EquivalentKeyword, unaccented_string_upper)
+        new_equikeyword = {"label": keyword, "keyword": db_equikeyword_other.keyword}
+    elif db.get(models.Keyword, unaccented_string_upper):
+        new_equikeyword = {"label": keyword, "keyword": unaccented_string_upper}
+    elif db.get(models.EquivalentKeyword, unaccented_string_capital):
+        db_equikeyword_other = db.get(models.EquivalentKeyword, unaccented_string_capital)
+        new_equikeyword = {"label": keyword, "keyword": db_equikeyword_other.keyword}
+    elif db.get(models.Keyword, unaccented_string_capital):
+        new_equikeyword = {"label": keyword, "keyword": unaccented_string_capital}
+    # transform the case
+    # capitalize and verify in the table Keyword
+    capital_k = keyword.capitalize()
+    if db.get(models.EquivalentKeyword, capital_k):
+        db_equikeyword_other = db.get(models.EquivalentKeyword, capital_k)
+        new_equikeyword = {"label": keyword, "keyword": db_equikeyword_other.keyword}
+    elif db.get(models.Keyword, capital_k):
+        new_equikeyword = {"label": keyword, "keyword": capital_k}
+    # lower and verify in EquivalentKeyword
+    lower_k = keyword.lower()
+    if db.get(models.EquivalentKeyword, lower_k):
+        db_equikeyword_other = db.get(models.EquivalentKeyword, lower_k)
+        new_equikeyword = {"label": keyword, "keyword": db_equikeyword_other.keyword}
+    elif db.get(models.Keyword, lower_k):
+        new_equikeyword = {"label": keyword, "keyword": lower_k}
+    # upper and verify in EquivalentKeyword
+    upper_k = keyword.upper()
+    if db.get(models.EquivalentKeyword, upper_k):
+        db_equikeyword_other = db.get(models.EquivalentKeyword, upper_k)
+        new_equikeyword = {"label": keyword, "keyword": db_equikeyword_other.keyword}
+    elif db.get(models.Keyword, upper_k):
+        new_equikeyword = {"label": keyword, "keyword": upper_k}
+    return new_equikeyword
 
 
 # Keywords: CREATE
