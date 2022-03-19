@@ -68,7 +68,7 @@ def update_refugee(keyword: schemas.KeywordUpdate, db: Session = Depends(get_db)
     response_model=bool,
     summary="Delete a Keyword",
 )
-def delete_refugee(label: str, db: Session = Depends(get_db)):
+def delete_keyword(label: str, db: Session = Depends(get_db)):
     db_keyword = crud.get_keywords_by_label(db, label=label)
     if db_keyword is None:
         raise HTTPException(status_code=404, detail="Keyword not found")

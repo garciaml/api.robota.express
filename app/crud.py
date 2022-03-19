@@ -145,6 +145,13 @@ def update_equikeyword_refugee(db: Session, attributes):
     return db.query(models.EquivalentKeyword).filter(models.EquivalentKeyword.label == attributes['label']).update({"refugee_id": (models.EquivalentKeyword.refugee_id + attributes['refugee_id'])})
 #def update_equikeyword_keyword(db: Session, attributes):
 
+# DELETE
+def delete_equikeyword(db: Session, label: str):
+    db_equikeyword = db.get(models.EquivalentKeyword, label)
+    db.delete(db_equikeyword)
+    db.commit()
+    return True
+
 def generate_new_equikeyword_when_no_existing(db: Session, keyword: str):
     new_equikeyword = None
     # first, we need to test if we can find a generic keyword

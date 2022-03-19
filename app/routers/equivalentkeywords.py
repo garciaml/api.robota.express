@@ -69,3 +69,17 @@ def read_equikeyword_keyword(keyword: Optional[str] = None, refugee_id: Optional
         attributes["refugee_id"] = refugee_id
     db_equikeyword = crud.get_equikeywords_by_attributes(db, attributes=attributes)
     return db_equikeyword
+
+
+### Delete an Equivalent Keyword
+@router.delete(
+    "/{label}",
+    response_model=bool,
+    summary="Delete an Equivalent Keyword",
+)
+def delete_equikeyword(label: str, db: Session = Depends(get_db)):
+    db_keyword = crud.get_equikeywords_by_label(db, label=label)
+    if db_keyword is None:
+        raise HTTPException(status_code=404, detail="Equivalent Keyword not found")
+    else:
+        return crud.delete_equikeyword(db, label)
