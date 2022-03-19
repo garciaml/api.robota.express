@@ -50,6 +50,5 @@ class EquivalentKeyword(Base):
 
 class Keyword(Base):
     __tablename__ = "keyword"
-
     label = Column(String(50), primary_key=True, index=True)
     # category = Column(String(50))

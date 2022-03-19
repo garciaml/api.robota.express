@@ -67,3 +67,11 @@ class Keyword(BaseModel):
 
     class Config:
         orm_mode = True
+
+class KeywordUpdate(BaseModel):
+    label: str
+    new_label: str
+    # category: Optional[str]
+
+    class Config:
+        orm_mode = True

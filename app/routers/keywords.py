@@ -50,6 +50,18 @@ def read_keyword_label(label: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Keyword not found")
     return db_keyword
 
+### Update keyword
+@router.put(
+    "/{label}",
+    response_model=schemas.Keyword,
+    summary="Update a refugee",
+)
+def update_refugee(keyword: schemas.KeywordUpdate, db: Session = Depends(get_db)):
+    db_keyword = crud.get_keywords_by_label(db, label=keyword.label)
+    if db_keyword is None:
+        raise HTTPException(status_code=404, detail="Keyword not found")
+    return crud.update_keyword(db, keyword)
+
 ### Delete Keyword
 @router.delete(
     "/{label}",
@@ -57,8 +69,8 @@ def read_keyword_label(label: str, db: Session = Depends(get_db)):
     summary="Delete a Keyword",
 )
 def delete_refugee(label: str, db: Session = Depends(get_db)):
-    db_refugee = crud.get_keywords_by_label(db, label=label)
-    if db_refugee is None:
+    db_keyword = crud.get_keywords_by_label(db, label=label)
+    if db_keyword is None:
         raise HTTPException(status_code=404, detail="Keyword not found")
     else:
         return crud.delete_keyword(db, label)

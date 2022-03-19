@@ -209,8 +209,32 @@ def create_keyword(db: Session, keyword: schemas.Keyword):
     db.refresh(db_keyword)
     return db_keyword
 
+# READ
+def get_keywords(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(models.Keyword).offset(skip).limit(limit).all()
+
 def get_keywords_by_label(db: Session, label: str):
-    return db.query(models.Keyword).filter(models.Keyword.label.like(label)).first()
+    return db.get(models.Keyword, label)
+
+# UPDATE
+def update_keyword(db: Session, keyword: schemas.KeywordUpdate):
+    # get the existing data
+    db_keyword = db.query(models.Keyword).filter(models.Keyword.label == keyword.label).one_or_none()
+    setattr(db_keyword, 'label',  keyword.new_label)
+    # db_keyword.update({'label': keyword.new_label})
+    # make updates directly saved and visible in the database
+    db.commit()
+    db.refresh(db_keyword)
+    # TODO: get equikeyword by keyword, update keyword 
+    # get the existing data
+    db_equikeyword = db.query(models.EquivalentKeyword).filter(models.EquivalentKeyword.keyword == keyword.label).all()
+    # update the fields to update
+    for db_equikeyword_one in db_equikeyword: 
+        setattr(db_equikeyword_one, 'keyword', keyword.new_label)
+        # make updates directly saved and visible in the database
+        db.commit()
+        db.refresh(db_equikeyword_one)
+    return db_keyword
 
 # DELETE
 def delete_keyword(db: Session, label: str):
