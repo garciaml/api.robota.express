@@ -75,3 +75,89 @@ class KeywordUpdate(BaseModel):
 
     class Config:
         orm_mode = True
+
+class CompanyBase(BaseModel):
+    id: int
+    name: str
+    country: str
+    address: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+
+class Company(CompanyBase):
+    keywords: Optional[List[str]] = None
+    # offers: Optional[List[str]] = None
+    # employees: Optional[List[str]] = None
+
+    class Config:
+        orm_mode = True
+
+class CompanyUpdate(BaseModel):
+    id: int
+    name: Optional[str] = None
+    country: Optional[str] = None
+    address: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    keywords: Optional[List[str]] = None
+    offers: Optional[List[str]] = None
+    employees: Optional[List[str]] = None
+
+    class Config:
+        orm_mode = True
+
+
+class RecruiterBase(BaseModel):
+    id: int
+    first_name: str
+    last_name: str
+    email: str
+    phone: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+class Recruiter(RecruiterBase):
+    keywords: Optional[List[str]] = None
+    offers: Optional[List[str]] = None
+    company: Optional[List[str]] = None
+
+    class Config:
+        orm_mode = True
+
+class RecruiterUpdate(BaseModel):
+    id: int
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    keywords: Optional[List[str]] = None
+    offers: Optional[List[str]] = None
+    company: Optional[List[str]] = None
+
+    class Config:
+        orm_mode = True
+
+
+class JobOfferBase(BaseModel):
+    id: int
+    title: str
+    country: Optional[str] = None
+    city: Optional[str] = None
+    address: Optional[str] = None
+    link_to_description: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+class JobOffer(JobOfferBase):
+    keywords: Optional[List[str]] = None
+    company: Optional[List[str]] = None
+    recruiters: Optional[List[str]] = None
+
+    class Config:
+        orm_mode = True
